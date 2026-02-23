@@ -1,4 +1,6 @@
-﻿namespace Catalog.API.Products.CreateProduct
+using Microsoft.AspNetCore.Mvc;
+
+namespace Catalog.API.Products.CreateProduct
 {
 
     public record CreateProductRequest(
@@ -13,12 +15,24 @@
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPost("/products", async (CreateProductRequest request, ISender sender) =>
+            app.MapPost("/products", async ([FromBody] CreateProductRequest request, [FromServices] ISender sender) =>
             {
-                var command = request.Adapt<CreateProductCommand>();
-                var result = await sender.Send(command);
-                var response = result.Adapt<CreateProductResponse>();
-                return Results.Created($"/products/{result.Id}", response);
+                try
+                {
+                    var command = request.Adapt<CreateProductCommand>();
+                    var result = await sender.Send(command);
+                    if (result is null)
+                        return Results.Problem("Failed to create product.", statusCode: StatusCodes.Status500InternalServerError);
+                    var response = new CreateProductResponse(result.Id);
+                    return Results.Created($"/products/{result.Id}", response);
+                }
+                catch (Exception ex)
+                {
+                    return Results.Problem(
+                        detail: ex.InnerException?.Message ?? ex.Message,
+                        statusCode: StatusCodes.Status500InternalServerError,
+                        title: "Create product failed");
+                }
             })
             .WithName("CreateProduct")
             .Produces<CreateProductResponse>(StatusCodes.Status201Created)
