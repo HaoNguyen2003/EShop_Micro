@@ -15,7 +15,7 @@ namespace Catalog.API.Products.CreateProduct
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPost("/products", async ([FromBody] CreateProductRequest request, [FromServices] ISender sender) =>
+            app.MapPost("/products", async (CreateProductRequest request, ISender sender) =>
             {
                 try
                 {

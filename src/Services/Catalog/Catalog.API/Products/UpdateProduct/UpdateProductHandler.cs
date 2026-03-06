@@ -17,15 +17,14 @@ namespace Catalog.API.Products.UpdateProduct
 
     public record UpdateProductResult(Product Product);
 
-    public class UpdateProductCommandHandler(IDocumentSession Session, ILogger<UpdateProductCommandHandler> logger) 
-        : ICommandHandler<UpdateProductCommand, UpdateProductResult>
+    public class UpdateProductCommandHandler(IDocumentSession Session, ILogger<UpdateProductCommandHandler> logger) : ICommandHandler<UpdateProductCommand, UpdateProductResult>
     {
         public async Task<UpdateProductResult> Handle(UpdateProductCommand command, CancellationToken cancellationToken)
         {
             var product = await Session.LoadAsync<Product>(command.Id, cancellationToken);
             if (product == null)
             {
-                throw new ProductNotFoundException();
+                throw new ProductNotFoundException(command.Id);
             }
             product.Name = command.Name;
             product.Description = command.Description;

@@ -7,6 +7,7 @@ namespace Catalog.API.Products.UpdateProduct
 {
 
     public record UpdateProductReponse(Product Product);
+    /// <summary>Body for update (Id comes from route PUT /products/{id}).</summary>
     public record UpdateProductRequest(
         Guid Id,
         string Name,
@@ -18,7 +19,7 @@ namespace Catalog.API.Products.UpdateProduct
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut("/products", async (UpdateProductRequest request, ISender Sender) =>
+            app.MapPut("/products", async ( UpdateProductRequest request,  ISender Sender) =>
             {
                 var command = request.Adapt<UpdateProductCommand>();
                 var result = await Sender.Send(command);
